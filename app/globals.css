@@ -1,26 +1,121 @@
 @import "tailwindcss";
 
+@theme {
+  --color-cream: #FFFDF7;
+  --color-midnight: #1A1A2E;
+  --color-clay: #2D2D45;
+  --color-muted: #6E7191;
+  --color-soft: #F0EDE8;
+  --font-display: var(--font-fraunces);
+  --font-body: var(--font-dm-sans);
+}
+
+/* ── Theme tokens ──────────────────────────────────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg-page:        #FFFDF7;
+  --bg-nav:         rgba(255,253,247,0.88);
+  --bg-card:        #ffffff;
+  --bg-soft:        #F0EDE8;
+  --bg-muted:       #F8F6F2;
+  --text-primary:   #1A1A2E;
+  --text-secondary: #6E7191;
+  --border-subtle:  rgba(26,26,46,0.06);
+  --border-card:    rgba(26,26,46,0.08);
+  --border-medium:  rgba(26,26,46,0.15);
+  --btn-cta-bg:     #1A1A2E;
+  --btn-cta-text:   #FFFDF7;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+[data-theme="dark"] {
+  --bg-page:        #0F0F1C;
+  --bg-nav:         rgba(15,15,28,0.90);
+  --bg-card:        #1C1C2E;
+  --bg-soft:        #252540;
+  --bg-muted:       #1E1E34;
+  --text-primary:   #EDE9DF;
+  --text-secondary: #9191AA;
+  --border-subtle:  rgba(237,233,223,0.06);
+  --border-card:    rgba(237,233,223,0.09);
+  --border-medium:  rgba(237,233,223,0.18);
+  --btn-cta-bg:     #EDE9DF;
+  --btn-cta-text:   #0F0F1C;
 }
 
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* Match OS preference before JS hydrates (no-flash) */
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  html:not([data-theme="light"]) {
+    --bg-page:      #0F0F1C;
+    --bg-nav:       rgba(15,15,28,0.90);
+    --bg-card:      #1A1A2E;
+    --bg-soft:      #252540;
+    --bg-muted:     #1E1E34;
+    --text-primary: #EDE9DF;
+    --text-secondary: #9191AA;
+    --border-subtle: rgba(237,233,223,0.06);
+    --border-card:   rgba(237,233,223,0.09);
   }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg-page);
+  color: var(--text-primary);
+  font-family: var(--font-dm-sans), sans-serif;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
+
+/* ── Dark mode global overrides ────────────────────────────────────────────── */
+[data-theme="dark"] .page-root {
+  background: var(--bg-page) !important;
+}
+
+[data-theme="dark"] nav {
+  background: var(--bg-nav) !important;
+  border-bottom-color: var(--border-subtle) !important;
+}
+
+[data-theme="dark"] nav a,
+[data-theme="dark"] nav span {
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] footer {
+  background: var(--bg-page) !important;
+  border-top-color: var(--border-subtle) !important;
+  color: var(--text-secondary) !important;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes floatBob {
+  0%, 100% { transform: translateY(0px) rotate(-1deg); }
+  50%       { transform: translateY(-10px) rotate(1deg); }
+}
+
+@keyframes pulse-ring {
+  0%   { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.4); }
+  70%  { transform: scale(1);    box-shadow: 0 0 0 12px rgba(255, 107, 107, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 107, 107, 0); }
+}
+
+.anim-1 { opacity: 0; animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.05s forwards; }
+.anim-2 { opacity: 0; animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.15s forwards; }
+.anim-3 { opacity: 0; animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.25s forwards; }
+.anim-4 { opacity: 0; animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.35s forwards; }
+.anim-5 { opacity: 0; animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.45s forwards; }
+
+.float { animation: floatBob 5s ease-in-out infinite; }
+.pulse { animation: pulse-ring 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite; }
