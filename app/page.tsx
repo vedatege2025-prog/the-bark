@@ -35,18 +35,20 @@ export default function Home() {
 
           <div className="flex items-center gap-3">
             <ThemeToggle />
-            <button
+            <a
+              href="/auth/login"
               className="hidden text-sm font-medium transition-opacity hover:opacity-70 md:block"
-              style={{ color: "var(--text-secondary)" }}
+              style={{ color: "var(--text-secondary)", textDecoration: "none" }}
             >
               Giriş
-            </button>
-            <button
+            </a>
+            <a
+              href="/auth/login?mode=signup"
               className="rounded-full px-5 py-2.5 text-sm font-semibold transition-opacity hover:opacity-90"
-              style={{ background: "var(--btn-cta-bg)", color: "var(--btn-cta-text)" }}
+              style={{ background: "var(--btn-cta-bg)", color: "var(--btn-cta-text)", textDecoration: "none" }}
             >
               Ücretsiz Başla
-            </button>
+            </a>
           </div>
         </div>
       </nav>
@@ -81,7 +83,7 @@ export default function Home() {
 
         <div className="anim-4 mb-16 flex flex-wrap items-center justify-center gap-4">
           <a
-            href="#dersler"
+            href="/auth/login?mode=signup"
             className="rounded-full px-8 py-4 text-lg font-semibold shadow-lg transition-all hover:scale-105 hover:shadow-xl"
             style={{ background: "var(--btn-cta-bg)", color: "var(--btn-cta-text)", textDecoration: "none" }}
           >
@@ -440,12 +442,13 @@ export default function Home() {
           <p className="mb-8 text-lg" style={{ color: "rgba(255,255,255,0.6)" }}>
             İlk 30 gün tamamen ücretsiz. Kredi kartı gerekmez.
           </p>
-          <button
+          <a
+            href="/auth/login?mode=signup"
             className="rounded-full px-10 py-4 text-lg font-bold transition-all hover:scale-105"
-            style={{ background: "#FF6B6B", color: "white" }}
+            style={{ background: "#FF6B6B", color: "white", textDecoration: "none" }}
           >
             Hemen Dene →
-          </button>
+          </a>
         </div>
       </section>
 
