@@ -12,6 +12,7 @@ import {
 } from "../data/deckStore"
 import { speak } from "../lib/speak"
 import { createClient } from "@/lib/supabase/client"
+import type { WordLevel } from "../data/enrichedWords"
 
 const SWIPE_THRESHOLD = 110
 const KIND_COLORS: Record<string, { bg: string; text: string }> = {
@@ -181,9 +182,9 @@ function DoneScreen({
 type Quality = 0 | 3 | 5
 
 // ── Main StudyMode ────────────────────────────────────────────────────────────
-export default function StudyMode({ onClose }: { onClose: () => void }) {
+export default function StudyMode({ onClose, level }: { onClose: () => void; level?: WordLevel }) {
   const [stats, setStats] = useState<Record<string, WordStat>>(() => loadStats())
-  const [deck, setDeck] = useState<EnrichedWord[]>(() => buildDeck(loadStats()))
+  const [deck, setDeck] = useState<EnrichedWord[]>(() => buildDeck(loadStats(), level))
   const [idx, setIdx] = useState(0)
   const [correctCount, setCorrectCount] = useState(0)
   const [flipped, setFlipped] = useState(false)
@@ -269,7 +270,7 @@ export default function StudyMode({ onClose }: { onClose: () => void }) {
   function handleNewDeck() {
     const fresh = loadStats()
     setStats(fresh)
-    setDeck(buildDeck(fresh))
+    setDeck(buildDeck(fresh, level))
     setIdx(0)
     setCorrectCount(0)
     setFlipped(false)

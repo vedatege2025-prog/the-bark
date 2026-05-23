@@ -1,10 +1,17 @@
+export type WordLevel = "A1" | "A2" | "B1" | "B2" | "C1"
+
 export interface EnrichedWord {
   word: string
   filename: string
   kind: "Adjektiv" | "Verb" | "Verb (refl.)"
+  level?: WordLevel      // belirtilmezse "B1" varsayılır
   verbForms?: { praeteritum: string; perfekt: string }
   turkish: string
   examples: Array<{ label: string; de: string }>
+}
+
+export function getWordLevel(w: EnrichedWord): WordLevel {
+  return w.level ?? "B1"
 }
 
 export const enrichedWords: EnrichedWord[] = [

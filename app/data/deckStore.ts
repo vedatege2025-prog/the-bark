@@ -1,5 +1,5 @@
-import { enrichedWords } from "./enrichedWords"
-import type { EnrichedWord } from "./enrichedWords"
+import { enrichedWords, getWordLevel } from "./enrichedWords"
+import type { EnrichedWord, WordLevel } from "./enrichedWords"
 
 export interface StudyLog {
   ts: number    // Unix ms
@@ -46,11 +46,14 @@ export function getOrInit(stats: Record<string, WordStat>, filename: string): Wo
   return { ...s, logs: s.logs ?? [] }  // backward compat: add logs if old entry lacks it
 }
 
-export function buildDeck(stats: Record<string, WordStat>): EnrichedWord[] {
+export function buildDeck(stats: Record<string, WordStat>, level?: WordLevel): EnrichedWord[] {
   const shuffle = <T,>(arr: T[]) => [...arr].sort(() => Math.random() - 0.5)
 
+  // Seviyeye göre havuzu filtrele
+  const pool = level ? enrichedWords.filter((w) => getWordLevel(w) === level) : enrichedWords
+
   // Resting cards are never included
-  const eligible = enrichedWords.filter((w) => {
+  const eligible = pool.filter((w) => {
     const s = stats[w.filename]
     return !s || !isResting(s)
   })

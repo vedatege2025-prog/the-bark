@@ -2,9 +2,17 @@
 
 import { useState, useEffect } from "react"
 import { AnimatePresence, motion } from "framer-motion"
-import { enrichedWords, type EnrichedWord } from "../data/enrichedWords"
+import { enrichedWords, getWordLevel, type EnrichedWord, type WordLevel } from "../data/enrichedWords"
 import { loadStats, type WordStat } from "../data/deckStore"
 import { createClient } from "@/lib/supabase/client"
+
+const LEVELS: { key: WordLevel; label: string; color: string; bg: string; text: string }[] = [
+  { key: "A1", label: "A1 Başlangıç",  color: "#10B981", bg: "#ECFDF5", text: "#065F46" },
+  { key: "A2", label: "A2 Temel",       color: "#0EA5E9", bg: "#F0F9FF", text: "#0369A1" },
+  { key: "B1", label: "B1 Orta",        color: "#6366F1", bg: "#EEF2FF", text: "#4338CA" },
+  { key: "B2", label: "B2 Orta-İleri",  color: "#8B5CF6", bg: "#F5F3FF", text: "#6D28D9" },
+  { key: "C1", label: "C1 İleri",       color: "#A855F7", bg: "#FAF5FF", text: "#7E22CE" },
+]
 
 const REST_CORRECT = 7
 const REST_MS = 7 * 24 * 60 * 60 * 1000
@@ -198,14 +206,19 @@ function GroupSection({ group, filter }: { group: Group; filter: string }) {
 // ── Main VocabSection ─────────────────────────────────────────────────────────
 export default function VocabSection() {
   const [filter, setFilter] = useState("Tümü")
+  const [activeLevel, setActiveLevel] = useState<WordLevel>("B1")
   const [studying, setStudying] = useState(false)
   const [groups, setGroups] = useState<Group[]>(() => classifyWords({}))
   const [dueCount, setDueCount] = useState<number | null>(null)
 
+  // Seviyeye göre kelimeler
+  const levelWords = enrichedWords.filter((w) => getWordLevel(w) === activeLevel)
+  const levelMeta = LEVELS.find((l) => l.key === activeLevel)!
+
   // Load stats from localStorage on client
   useEffect(() => {
     setGroups(classifyWords(loadStats()))
-  }, [studying]) // re-classify after a study session closes
+  }, [studying, activeLevel])
 
   // Giriş yapılmışsa bugün tekrar edilecek kart sayısını çek
   useEffect(() => {
@@ -227,7 +240,7 @@ export default function VocabSection() {
   return (
     <>
       {studying && (
-        <StudyMode onClose={() => setStudying(false)} />
+        <StudyMode level={activeLevel} onClose={() => setStudying(false)} />
       )}
 
       <section className="mx-auto max-w-7xl px-6 pb-20">
@@ -255,68 +268,118 @@ export default function VocabSection() {
           </div>
         )}
 
-        {/* Header */}
-        <div className="mb-10 flex flex-col items-start gap-6 md:flex-row md:items-end md:justify-between">
+        {/* ── Seviye sekmeleri ── */}
+        <div className="mb-8 flex flex-wrap gap-2">
+          {LEVELS.map((lv) => {
+            const count = enrichedWords.filter((w) => getWordLevel(w) === lv.key).length
+            const active = activeLevel === lv.key
+            const empty = count === 0
+            return (
+              <button
+                key={lv.key}
+                onClick={() => !empty && setActiveLevel(lv.key)}
+                className="flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold transition-all"
+                style={
+                  empty
+                    ? { background: "var(--bg-soft)", color: "#9CA3AF", cursor: "default", opacity: 0.6 }
+                    : active
+                    ? { background: lv.color, color: "white", boxShadow: `0 4px 18px ${lv.color}55` }
+                    : { background: "var(--bg-soft)", color: "var(--text-primary)" }
+                }
+              >
+                <span>{lv.key}</span>
+                <span className="text-xs font-medium" style={{ opacity: 0.75 }}>
+                  {empty ? "Yakında" : `${count} kelime`}
+                </span>
+              </button>
+            )
+          })}
+        </div>
+
+        {/* ── Seviye banner ── */}
+        <div
+          className="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-2xl px-6 py-4"
+          style={{ background: levelMeta.bg, border: `1px solid ${levelMeta.color}30` }}
+        >
           <div>
-            <h2
-              className="mb-1 text-4xl font-black md:text-5xl"
-              style={{ fontFamily: "var(--font-fraunces)", color: "var(--text-primary)" }}
-            >
-              Kelime Hazinesi
-            </h2>
-            <p style={{ color: "var(--text-secondary)" }}>
-              {enrichedWords.length} kelime · Öğrenme durumuna göre gruplandırılmış
+            <span className="rounded-full px-3 py-1 text-xs font-bold uppercase tracking-widest" style={{ background: levelMeta.color, color: "white" }}>
+              {activeLevel}
+            </span>
+            <span className="ml-3 text-sm font-semibold" style={{ color: levelMeta.text }}>
+              {levelMeta.label} · {levelWords.length} kelime
+            </span>
+          </div>
+          <button
+            onClick={() => setStudying(true)}
+            disabled={levelWords.length === 0}
+            className="rounded-full px-5 py-2.5 text-sm font-bold transition-all hover:scale-105 disabled:opacity-40 disabled:cursor-not-allowed"
+            style={{ background: levelMeta.color, color: "white" }}
+          >
+            🃏 Çalış
+          </button>
+        </div>
+
+        {/* Header */}
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+          <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem" }}>
+            Öğrenme durumuna göre gruplandırılmış
+          </p>
+
+          {/* Filter chips */}
+          <div className="flex flex-wrap gap-2">
+            {FILTERS.map((f) => (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                className="rounded-full px-4 py-2 text-sm font-semibold transition-all"
+                style={
+                  filter === f
+                    ? { background: "var(--btn-cta-bg)", color: "var(--btn-cta-text)" }
+                    : { background: "var(--bg-soft)", color: "var(--text-secondary)" }
+                }
+              >
+                {f}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Progress bar */}
+        {levelWords.length > 0 && (
+          <div className="mb-8 overflow-hidden rounded-full" style={{ height: 8, background: "var(--bg-soft)" }}>
+            {(() => {
+              const total = levelWords.length
+              const done = groups.find((g) => g.key === "ezberlendi")?.words.filter((w) => getWordLevel(w) === activeLevel).length ?? 0
+              const learning = groups.find((g) => g.key === "ogreniliyor")?.words.filter((w) => getWordLevel(w) === activeLevel).length ?? 0
+              return (
+                <div className="flex h-full">
+                  <div style={{ width: `${(done / total) * 100}%`, background: "#34D399", transition: "width 0.5s" }} />
+                  <div style={{ width: `${(learning / total) * 100}%`, background: "#FB923C", transition: "width 0.5s" }} />
+                </div>
+              )
+            })()}
+          </div>
+        )}
+
+        {/* Boş seviye */}
+        {levelWords.length === 0 && (
+          <div className="py-20 text-center">
+            <p className="text-4xl mb-4">🔜</p>
+            <p className="text-lg font-bold mb-2" style={{ fontFamily: "var(--font-fraunces)", color: "var(--text-primary)" }}>
+              {activeLevel} kelimeleri hazırlanıyor
+            </p>
+            <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+              Görseller tamamlanınca buraya eklenecek.
             </p>
           </div>
+        )}
 
-          <div className="flex flex-wrap items-center gap-3">
-            <button
-              onClick={() => setStudying(true)}
-              className="rounded-full px-5 py-2.5 text-sm font-bold transition-all hover:scale-105 hover:opacity-90"
-              style={{ background: "var(--btn-cta-bg)", color: "var(--btn-cta-text)", boxShadow: "0 2px 12px rgba(26,26,46,0.18)" }}
-            >
-              🃏 Deste Oluştur
-            </button>
-
-            {/* Filter chips */}
-            <div className="flex flex-wrap gap-2">
-              {FILTERS.map((f) => (
-                <button
-                  key={f}
-                  onClick={() => setFilter(f)}
-                  className="rounded-full px-4 py-2 text-sm font-semibold transition-all"
-                  style={
-                    filter === f
-                      ? { background: "var(--btn-cta-bg)", color: "var(--btn-cta-text)" }
-                      : { background: "var(--bg-soft)", color: "var(--text-secondary)" }
-                  }
-                >
-                  {f}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Progress bar across groups */}
-        <div className="mb-10 overflow-hidden rounded-full" style={{ height: 8, background: "var(--bg-soft)" }}>
-          {(() => {
-            const total = enrichedWords.length
-            const done = groups.find((g) => g.key === "ezberlendi")?.words.length ?? 0
-            const learning = groups.find((g) => g.key === "ogreniliyor")?.words.length ?? 0
-            return (
-              <div className="flex h-full">
-                <div style={{ width: `${(done / total) * 100}%`, background: "#34D399", transition: "width 0.5s" }} />
-                <div style={{ width: `${(learning / total) * 100}%`, background: "#FB923C", transition: "width 0.5s" }} />
-              </div>
-            )
-          })()}
-        </div>
-
-        {/* Groups */}
-        {groups.map((group) => (
-          <GroupSection key={group.key} group={group} filter={filter} />
-        ))}
+        {/* Groups — seviyeye göre filtreli */}
+        {levelWords.length > 0 && groups
+          .map((group) => ({ ...group, words: group.words.filter((w) => getWordLevel(w) === activeLevel) }))
+          .map((group) => (
+            <GroupSection key={group.key} group={group} filter={filter} />
+          ))}
       </section>
     </>
   )
