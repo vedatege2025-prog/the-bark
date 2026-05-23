@@ -834,12 +834,13 @@ function UnitCard({ unit, locked }: { unit: Unit; locked: boolean }) {
             </AnimatePresence>
 
             {!unavailable && (
-              <button
-                className="w-full rounded-full py-2 text-sm font-bold text-white transition-all hover:opacity-90 hover:scale-[1.01]"
-                style={{ background: cat.color }}
+              <a
+                href={`/dersler/${unit.id}/0`}
+                className="block w-full rounded-full py-2 text-center text-sm font-bold text-white transition-all hover:opacity-90 hover:scale-[1.01]"
+                style={{ background: cat.color, textDecoration: 'none' }}
               >
                 Derse Başla →
-              </button>
+              </a>
             )}
           </div>
         )}

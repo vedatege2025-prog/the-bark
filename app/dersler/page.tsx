@@ -39,18 +39,20 @@ export default function DerslerPage() {
 
           <div className="flex items-center gap-3">
             <ThemeToggle />
-            <button
+            <a
+              href="/auth/login"
               className="hidden text-sm font-medium transition-opacity hover:opacity-70 md:block"
-              style={{ color: "var(--text-secondary)" }}
+              style={{ color: "var(--text-secondary)", textDecoration: "none" }}
             >
               Giriş
-            </button>
-            <button
+            </a>
+            <a
+              href="/auth/login?mode=signup"
               className="rounded-full px-5 py-2.5 text-sm font-semibold transition-opacity hover:opacity-90"
-              style={{ background: "var(--btn-cta-bg)", color: "var(--btn-cta-text)" }}
+              style={{ background: "var(--btn-cta-bg)", color: "var(--btn-cta-text)", textDecoration: "none" }}
             >
               Ücretsiz Başla
-            </button>
+            </a>
           </div>
         </div>
       </nav>
