@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 import { enrichedWords, type EnrichedWord } from "../data/enrichedWords"
 import { loadStats, type WordStat } from "../data/deckStore"
+import { createClient } from "@/lib/supabase/client"
 
 const REST_CORRECT = 7
 const REST_MS = 7 * 24 * 60 * 60 * 1000
@@ -199,11 +200,29 @@ export default function VocabSection() {
   const [filter, setFilter] = useState("Tümü")
   const [studying, setStudying] = useState(false)
   const [groups, setGroups] = useState<Group[]>(() => classifyWords({}))
+  const [dueCount, setDueCount] = useState<number | null>(null)
 
   // Load stats from localStorage on client
   useEffect(() => {
     setGroups(classifyWords(loadStats()))
   }, [studying]) // re-classify after a study session closes
+
+  // Giriş yapılmışsa bugün tekrar edilecek kart sayısını çek
+  useEffect(() => {
+    async function fetchDue() {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const res = await fetch('/api/words/progress')
+      if (!res.ok) return
+      const progress: Array<{ next_review_at: string }> = await res.json()
+      const now = new Date()
+      const due = progress.filter((p) => new Date(p.next_review_at) <= now)
+      setDueCount(due.length)
+    }
+    fetchDue()
+  }, [studying])
 
   return (
     <>
@@ -212,6 +231,30 @@ export default function VocabSection() {
       )}
 
       <section className="mx-auto max-w-7xl px-6 pb-20">
+        {/* Bugün Tekrar Et — sadece giriş yapan kullanıcılara, kartı olanlar için */}
+        {dueCount !== null && dueCount > 0 && (
+          <div
+            className="mb-8 flex items-center justify-between rounded-2xl px-6 py-4"
+            style={{ background: "#1A1A2E", border: "1px solid rgba(255,255,255,0.08)" }}
+          >
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-widest mb-0.5" style={{ color: "rgba(255,255,255,0.45)" }}>
+                Tekrar Zamanı
+              </p>
+              <p className="text-lg font-bold text-white">
+                {dueCount} kelime bugün seni bekliyor
+              </p>
+            </div>
+            <button
+              onClick={() => setStudying(true)}
+              className="rounded-full px-5 py-2.5 text-sm font-bold transition-all hover:scale-105"
+              style={{ background: "#FFD93D", color: "#1A1A2E" }}
+            >
+              Tekrar Et →
+            </button>
+          </div>
+        )}
+
         {/* Header */}
         <div className="mb-10 flex flex-col items-start gap-6 md:flex-row md:items-end md:justify-between">
           <div>

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useCallback } from "react"
 import type { EnrichedWord } from "../data/enrichedWords"
 import {
   loadStats,
@@ -11,6 +11,7 @@ import {
   type StudyLog,
 } from "../data/deckStore"
 import { speak } from "../lib/speak"
+import { createClient } from "@/lib/supabase/client"
 
 const SWIPE_THRESHOLD = 110
 const KIND_COLORS: Record<string, { bg: string; text: string }> = {
@@ -176,6 +177,9 @@ function DoneScreen({
   )
 }
 
+// quality değerleri: 0=Bilmedim, 3=Zordu, 5=Bildim
+type Quality = 0 | 3 | 5
+
 // ── Main StudyMode ────────────────────────────────────────────────────────────
 export default function StudyMode({ onClose }: { onClose: () => void }) {
   const [stats, setStats] = useState<Record<string, WordStat>>(() => loadStats())
@@ -186,6 +190,7 @@ export default function StudyMode({ onClose }: { onClose: () => void }) {
   const [dragX, setDragX] = useState(0)
   const [dragging, setDragging] = useState(false)
   const [exiting, setExiting] = useState<"left" | "right" | null>(null)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
 
   const startX = useRef(0)
   const moved = useRef(false)
@@ -193,46 +198,30 @@ export default function StudyMode({ onClose }: { onClose: () => void }) {
   const current = deck[idx]
   const remaining = deck.length - idx
 
+  // Giriş durumunu kontrol et
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data }) => setIsLoggedIn(!!data.user))
+  }, [])
+
   // Auto-speak German word when card advances
   useEffect(() => {
     if (current) speak(current.word)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [current?.filename])
 
-  useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "ArrowLeft")  act("left")
-      if (e.key === "ArrowRight") act("right")
-      if (e.key === " " || e.key === "ArrowUp" || e.key === "ArrowDown") {
-        e.preventDefault()
-        setFlipped((f) => !f)
-      }
-    }
-    window.addEventListener("keydown", onKey)
-    return () => window.removeEventListener("keydown", onKey)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [deck, idx, exiting])
-
-  function handleNewDeck() {
-    const fresh = loadStats()
-    setStats(fresh)
-    setDeck(buildDeck(fresh))
-    setIdx(0)
-    setCorrectCount(0)
-    setFlipped(false)
-  }
-
-  function act(dir: "left" | "right") {
+  const act = useCallback((quality: Quality) => {
     if (exiting || !current) return
 
+    const isCorrect = quality >= 3
     const newStats = { ...stats }
     const stat = { ...getOrInit(newStats, current.filename) }
     const newDeck = [...deck]
 
-    const log: StudyLog = { ts: Date.now(), ok: dir === "right" }
+    const log: StudyLog = { ts: Date.now(), ok: isCorrect }
     stat.logs = [...(stat.logs ?? []), log]
 
-    if (dir === "right") {
+    if (isCorrect) {
       stat.ezberlendiCount++
       setCorrectCount((c) => c + 1)
     } else {
@@ -243,8 +232,17 @@ export default function StudyMode({ onClose }: { onClose: () => void }) {
     newStats[current.filename] = stat
     saveStats(newStats)
     setStats(newStats)
-    setExiting(dir)
 
+    // Giriş yapılmışsa Supabase'e de kaydet
+    if (isLoggedIn) {
+      fetch('/api/words/progress', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ word_id: current.filename, quality }),
+      }).catch(() => { /* sessizce devam et */ })
+    }
+
+    setExiting(isCorrect ? "right" : "left")
     setTimeout(() => {
       setDeck(newDeck)
       setIdx((i) => i + 1)
@@ -252,6 +250,29 @@ export default function StudyMode({ onClose }: { onClose: () => void }) {
       setDragX(0)
       setExiting(null)
     }, 300)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [exiting, current, stats, deck, isLoggedIn])
+
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "ArrowLeft")  act(0)
+      if (e.key === "ArrowRight") act(5)
+      if (e.key === " " || e.key === "ArrowUp" || e.key === "ArrowDown") {
+        e.preventDefault()
+        setFlipped((f) => !f)
+      }
+    }
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
+  }, [act])
+
+  function handleNewDeck() {
+    const fresh = loadStats()
+    setStats(fresh)
+    setDeck(buildDeck(fresh))
+    setIdx(0)
+    setCorrectCount(0)
+    setFlipped(false)
   }
 
   function onPointerDown(e: React.PointerEvent<HTMLDivElement>) {
@@ -271,7 +292,7 @@ export default function StudyMode({ onClose }: { onClose: () => void }) {
   function onPointerUp() {
     setDragging(false)
     if (Math.abs(dragX) >= SWIPE_THRESHOLD) {
-      act(dragX > 0 ? "right" : "left")
+      act(dragX > 0 ? 5 : 0)
     } else {
       setDragX(0)
       if (!moved.current) setFlipped((f) => !f)
@@ -333,10 +354,10 @@ export default function StudyMode({ onClose }: { onClose: () => void }) {
               {/* Swipe labels */}
               <div className="flex flex-shrink-0 justify-between px-1">
                 <span className="text-sm font-bold transition-opacity" style={{ color: "#EF4444", opacity: leftOpacity }}>
-                  ✗ Ezberlenmedi
+                  ✗ Bilmedim
                 </span>
                 <span className="text-sm font-bold transition-opacity" style={{ color: "#12B886", opacity: rightOpacity }}>
-                  Ezberlendi ✓
+                  Bildim ✓
                 </span>
               </div>
 
@@ -360,16 +381,16 @@ export default function StudyMode({ onClose }: { onClose: () => void }) {
 
               {/* Hint */}
               <p className="flex-shrink-0 text-xs text-center" style={{ color: "var(--text-secondary)" }}>
-                {flipped ? "Sola ✗  ·  Sağa ✓  veya aşağıdaki butonlar" : "Kartı çevirmek için dokun"}
+                {flipped ? "← Bilmedim  ·  Zordu  ·  Bildim →  veya aşağıdaki butonlar" : "Kartı çevirmek için dokun"}
               </p>
 
-              {/* Buttons */}
-              <div className="flex flex-shrink-0 items-center justify-center gap-8">
+              {/* Buttons: Bilmedim / Çevir / Zordu / Bildim / Ses */}
+              <div className="flex flex-shrink-0 items-center justify-center gap-3">
                 <button
-                  onClick={() => act("left")}
-                  className="flex h-14 w-14 items-center justify-center rounded-full text-2xl transition-all hover:scale-110 active:scale-95"
-                  style={{ background: "#FEF2F2", border: "2px solid #FECACA", boxShadow: "0 2px 12px rgba(239,68,68,0.15)" }}
-                  title="Ezberlenmedi"
+                  onClick={() => act(0)}
+                  className="flex h-14 w-14 items-center justify-center rounded-full text-xl font-bold transition-all hover:scale-110 active:scale-95"
+                  style={{ background: "#FEF2F2", border: "2px solid #FECACA", boxShadow: "0 2px 12px rgba(239,68,68,0.15)", color: "#DC2626" }}
+                  title="Bilmedim (0)"
                 >
                   ✗
                 </button>
@@ -382,10 +403,18 @@ export default function StudyMode({ onClose }: { onClose: () => void }) {
                   ↩
                 </button>
                 <button
-                  onClick={() => act("right")}
-                  className="flex h-14 w-14 items-center justify-center rounded-full text-2xl transition-all hover:scale-110 active:scale-95"
-                  style={{ background: "#F0FDF4", border: "2px solid #BBF7D0", boxShadow: "0 2px 12px rgba(18,184,134,0.15)" }}
-                  title="Ezberlendi"
+                  onClick={() => act(3)}
+                  className="flex h-12 items-center justify-center rounded-full px-4 text-xs font-bold transition-all hover:scale-110 active:scale-95"
+                  style={{ background: "#FFFBEB", border: "2px solid #FDE68A", boxShadow: "0 2px 12px rgba(245,158,11,0.15)", color: "#B45309" }}
+                  title="Zordu (3)"
+                >
+                  Zordu
+                </button>
+                <button
+                  onClick={() => act(5)}
+                  className="flex h-14 w-14 items-center justify-center rounded-full text-xl font-bold transition-all hover:scale-110 active:scale-95"
+                  style={{ background: "#F0FDF4", border: "2px solid #BBF7D0", boxShadow: "0 2px 12px rgba(18,184,134,0.15)", color: "#15803D" }}
+                  title="Bildim (5)"
                 >
                   ✓
                 </button>
