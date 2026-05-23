@@ -179,45 +179,50 @@ export default function Home() {
         style={{ background: "#1A1A2E" }}
       >
         <div className="mx-auto max-w-7xl px-6">
+          {/* Başlık */}
           <div className="mb-16 text-center">
             <span
               className="mb-4 inline-block rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-widest"
               style={{ background: "rgba(255,217,61,0.15)", color: "#FFD93D" }}
             >
-              AI Destekli
+              Yakında
             </span>
             <h2
               className="mb-4 text-4xl font-black text-white md:text-5xl"
               style={{ fontFamily: "var(--font-fraunces)" }}
             >
-              Tanış: <em style={{ color: "#FF6B6B", fontStyle: "italic" }}>Anna</em>
+              Tanış:{" "}
+              <em style={{ color: "#FF6B6B", fontStyle: "italic" }}>Anna</em>
             </h2>
             <p
-              className="mx-auto max-w-xl text-lg leading-relaxed"
+              className="mx-auto max-w-2xl text-lg leading-relaxed"
               style={{ color: "rgba(255,255,255,0.6)" }}
             >
-              7/24 sabırlı, anlayışlı, hiç yorulmayan Almanca öğretmenin. Seni yargılamadan, kendi hızında öğrenir gibi öğretir.
+              7/24 sabırlı, anlayışlı, hiç yorulmayan Almanca öğretmenin.
+              Seni yargılamadan, kendi hızında öğrenir gibi öğretir.
+              Türkçe konuşanlar için, Türkçe bilen bir öğretmen.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+          {/* Özellik kartları */}
+          <div className="mb-16 grid grid-cols-1 gap-5 md:grid-cols-3">
             {[
               {
                 icon: "🎙️",
                 title: "Sesli Konuşma",
-                desc: "Anna ile gerçek zamanlı Almanca diyalog kur. Telaffuzunu düzeltir, eksiklerini anında gösterir.",
+                desc: "Anna ile gerçek zamanlı Almanca diyalog kur. Telaffuzunu anında düzeltir, doğal konuşma kalıplarını gösterir. Market, doktor, iş görüşmesi — dilediğin senaryoda pratik yap.",
                 color: "#FF6B6B",
               },
               {
                 icon: "✍️",
                 title: "Yazma Koçu",
-                desc: "E-posta, dilekçe, hikaye yaz. Anna gramer hatalarını açıklamalı düzeltir, daha iyi versiyonu önerir.",
+                desc: "Almanca e-posta, dilekçe, özgeçmiş yaz. Anna gramer hatalarını Türkçe açıklamalı düzeltir, her cümleyi neden değiştirdiğini anlatır. Sadece düzeltmez, öğretir.",
                 color: "#FFD93D",
               },
               {
                 icon: "🧠",
                 title: "Kişisel Müfredat",
-                desc: "Zayıf alanlarını tespit eder, sana özel ders planı çıkarır. Her gün farklı, her gün ilerleme.",
+                desc: "Hangi gramer yapısında takılıyorsun, hangi kelimeler sana zor geliyor? Anna bunu analiz eder, sana özel günlük plan çıkarır. Her gün farklı, her gün hedefli ilerleme.",
                 color: "#4C6EF5",
               },
             ].map((f) => (
@@ -245,14 +250,15 @@ export default function Home() {
             ))}
           </div>
 
-          {/* Demo chat bubble */}
-          <div className="mt-16 mx-auto max-w-2xl">
+          {/* Demo chat + Anna neden farklı */}
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+            {/* Demo konuşma */}
             <div
               className="rounded-2xl p-6"
               style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}
             >
               <p
-                className="mb-4 text-xs font-semibold uppercase tracking-widest"
+                className="mb-5 text-xs font-semibold uppercase tracking-widest"
                 style={{ color: "rgba(255,255,255,0.3)" }}
               >
                 Anna ile örnek konuşma
@@ -263,7 +269,7 @@ export default function Home() {
                     className="max-w-xs rounded-2xl rounded-br-sm px-4 py-3 text-sm"
                     style={{ background: "#4C6EF5", color: "white" }}
                   >
-                    Merhaba, bugün ne öğreneceğiz?
+                    &quot;der, die, das&quot; nasıl öğrenebilirim?
                   </div>
                 </div>
                 <div className="flex justify-start">
@@ -271,9 +277,11 @@ export default function Home() {
                     className="max-w-sm rounded-2xl rounded-bl-sm px-4 py-3 text-sm"
                     style={{ background: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.9)" }}
                   >
-                    Hallo! Heute üben wir den Konjunktiv II. Es ist nicht so schwer, wie es klingt! 😊
-                    <p className="mt-1 text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
-                      Bugün Konjunktiv II pratik yapıyoruz. Kulağa geldiği kadar zor değil!
+                    Türkçede artikel yok, bu yüzden sana zor geliyor — normal! 😊
+                    <br />
+                    En iyi yol: kelimeyi artikeli ile birlikte ezberlemek. &quot;Buch&quot; değil, &quot;das Buch&quot; (kitap).
+                    <p className="mt-2 text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
+                      Şimdi 3 kelime dene: Tisch, Lampe, Fenster
                     </p>
                   </div>
                 </div>
@@ -282,7 +290,7 @@ export default function Home() {
                     className="max-w-xs rounded-2xl rounded-br-sm px-4 py-3 text-sm"
                     style={{ background: "#4C6EF5", color: "white" }}
                   >
-                    Wenn ich Zeit hätte... ne demek?
+                    der Tisch, die Lampe, das Fenster?
                   </div>
                 </div>
                 <div className="flex justify-start">
@@ -290,10 +298,46 @@ export default function Home() {
                     className="max-w-sm rounded-2xl rounded-bl-sm px-4 py-3 text-sm"
                     style={{ background: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.9)" }}
                   >
-                    Harika soru! &quot;Wenn ich Zeit hätte&quot; = &quot;Vaktim olsaydı&quot; demek. Konjunktiv II ile hayaller ve varsayımlar kurarız. Şimdi sen bir cümle dene!
+                    Mükemmel, hepsi doğru! 🎉 Şimdi bir cümle kuralım: &quot;Der Tisch ist...&quot;
                   </div>
                 </div>
               </div>
+            </div>
+
+            {/* Anna neden farklı */}
+            <div className="flex flex-col justify-center space-y-5">
+              {[
+                {
+                  icon: "🇹🇷",
+                  title: "Türkçe konuşan için tasarlandı",
+                  desc: "Türkçede olmayan yapıları (artikel, çekim, konjunktiv) Türkçe mantıkla açıklar. Duolingo'nun yapamadığını yapar.",
+                },
+                {
+                  icon: "🔁",
+                  title: "Hataları takip eder",
+                  desc: "Hangi yapıda defalarca hata yaptığını hatırlar ve bir sonraki seansta tekrar çalıştırır.",
+                },
+                {
+                  icon: "🏠",
+                  title: "Gerçek hayat senaryoları",
+                  desc: "Ev arama, doktora gitme, iş görüşmesi, Ausländerbehörde — göçmen hayatının gerçek ihtiyaçları.",
+                },
+              ].map((item) => (
+                <div key={item.title} className="flex items-start gap-4">
+                  <div
+                    className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl text-lg"
+                    style={{ background: "rgba(255,255,255,0.08)" }}
+                  >
+                    {item.icon}
+                  </div>
+                  <div>
+                    <p className="mb-1 font-bold text-white text-sm">{item.title}</p>
+                    <p className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.5)" }}>
+                      {item.desc}
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -301,7 +345,7 @@ export default function Home() {
 
       {/* ─── Fiyatlar ────────────────────────────────────────── */}
       <section id="fiyatlar" className="py-24" style={{ background: "var(--bg-muted)" }}>
-        <div className="mx-auto max-w-7xl px-6">
+        <div className="mx-auto max-w-5xl px-6">
           <div className="mb-16 text-center">
             <h2
               className="mb-3 text-4xl font-black md:text-5xl"
@@ -310,109 +354,102 @@ export default function Home() {
               Sade ve Şeffaf
             </h2>
             <p style={{ color: "var(--text-secondary)" }}>
-              İlk 30 gün tamamen ücretsiz. Sonrasında istediğin zaman iptal et.
+              Ücretsiz başla, hazır olduğunda Pro'ya geç. Kredi kartı gerekmez.
             </p>
           </div>
 
-          <div className="mx-auto grid max-w-4xl grid-cols-1 gap-6 md:grid-cols-3">
+          <div className="mx-auto grid max-w-3xl grid-cols-1 gap-6 md:grid-cols-2">
             {/* Free */}
             <div
               className="rounded-2xl p-8"
-              style={{ background: "var(--bg-card)", boxShadow: "0 1px 3px rgba(26,26,46,0.08)" }}
+              style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)" }}
             >
-              <p className="mb-1 text-sm font-semibold uppercase tracking-wide" style={{ color: "var(--text-secondary)" }}>
+              <p className="mb-1 text-xs font-bold uppercase tracking-widest" style={{ color: "var(--text-secondary)" }}>
                 Ücretsiz
               </p>
-              <p className="mb-1 text-4xl font-black" style={{ fontFamily: "var(--font-fraunces)", color: "var(--text-primary)" }}>
-                €0
-              </p>
+              <div className="mb-1 flex items-end gap-1">
+                <span className="text-5xl font-black" style={{ fontFamily: "var(--font-fraunces)", color: "var(--text-primary)" }}>€0</span>
+              </div>
               <p className="mb-8 text-sm" style={{ color: "var(--text-secondary)" }}>sonsuza dek</p>
               <ul className="mb-8 space-y-3 text-sm" style={{ color: "var(--text-primary)" }}>
-                {["5 ders / ay", "Kelime kartları", "Temel alıştırmalar"].map((f) => (
+                {[
+                  "Tüm A1 dersleri",
+                  "Kelime kartları (SM-2)",
+                  "Günlük 15 dk çalışma",
+                  "İlerleme takibi",
+                ].map((f) => (
                   <li key={f} className="flex items-center gap-2">
-                    <span style={{ color: "#12B886" }}>✓</span> {f}
+                    <span className="font-bold" style={{ color: "#10B981" }}>✓</span> {f}
+                  </li>
+                ))}
+                {[
+                  "Anna ile sesli konuşma",
+                  "B1–C1 içerikleri",
+                ].map((f) => (
+                  <li key={f} className="flex items-center gap-2" style={{ opacity: 0.35 }}>
+                    <span className="font-bold">✕</span> {f}
                   </li>
                 ))}
               </ul>
-              <button
-                className="w-full rounded-full py-3 text-sm font-semibold transition-all hover:opacity-80"
-                style={{ background: "var(--bg-soft)", color: "var(--text-primary)" }}
+              <a
+                href="/auth/login?mode=signup"
+                className="block w-full rounded-full py-3 text-center text-sm font-semibold transition-all hover:opacity-80"
+                style={{ background: "var(--bg-soft)", color: "var(--text-primary)", textDecoration: "none" }}
               >
-                Başla
-              </button>
+                Ücretsiz Başla
+              </a>
             </div>
 
-            {/* Pro — featured (always dark, intentional brand card) */}
+            {/* Pro */}
             <div
               className="relative rounded-2xl p-8"
-              style={{ background: "#1A1A2E", boxShadow: "0 8px 32px rgba(26,26,46,0.20)" }}
+              style={{ background: "#1A1A2E", boxShadow: "0 12px 40px rgba(26,26,46,0.25)" }}
             >
               <span
                 className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full px-4 py-1 text-xs font-bold uppercase tracking-wide"
                 style={{ background: "#FFD93D", color: "#1A1A2E" }}
               >
-                En Popüler
+                En İyi Değer
               </span>
-              <p className="mb-1 text-sm font-semibold uppercase tracking-wide" style={{ color: "rgba(255,255,255,0.5)" }}>
+              <p className="mb-1 text-xs font-bold uppercase tracking-widest" style={{ color: "rgba(255,255,255,0.45)" }}>
                 Pro
               </p>
-              <p className="mb-1 text-4xl font-black text-white" style={{ fontFamily: "var(--font-fraunces)" }}>
-                €9
+              <div className="mb-1 flex items-end gap-1">
+                <span className="text-5xl font-black text-white" style={{ fontFamily: "var(--font-fraunces)" }}>€9</span>
+                <span className="mb-2 text-sm" style={{ color: "rgba(255,255,255,0.45)" }}>/ yıl</span>
+              </div>
+              <p className="mb-8 text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>
+                Günde yalnızca 2,5 cent · İstediğinde iptal
               </p>
-              <p className="mb-8 text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>/ ay</p>
               <ul className="mb-8 space-y-3 text-sm text-white">
                 {[
-                  "Sınırsız ders",
+                  "Tüm A1–C1 dersleri",
+                  "Sınırsız kelime çalışması",
                   "Anna ile sesli konuşma",
-                  "Kişisel müfredat",
                   "Yazma koçu",
+                  "Kişisel müfredat",
                   "İlerleme analizi",
-                ].map((f) => (
-                  <li key={f} className="flex items-center gap-2">
-                    <span style={{ color: "#FFD93D" }}>✓</span> {f}
-                  </li>
-                ))}
-              </ul>
-              <button
-                className="w-full rounded-full py-3 text-sm font-bold transition-all hover:scale-105"
-                style={{ background: "#FF6B6B", color: "white" }}
-              >
-                30 Gün Ücretsiz Dene
-              </button>
-            </div>
-
-            {/* Team */}
-            <div
-              className="rounded-2xl p-8"
-              style={{ background: "var(--bg-card)", boxShadow: "0 1px 3px rgba(26,26,46,0.08)" }}
-            >
-              <p className="mb-1 text-sm font-semibold uppercase tracking-wide" style={{ color: "var(--text-secondary)" }}>
-                Kurumsal
-              </p>
-              <p className="mb-1 text-4xl font-black" style={{ fontFamily: "var(--font-fraunces)", color: "var(--text-primary)" }}>
-                €29
-              </p>
-              <p className="mb-8 text-sm" style={{ color: "var(--text-secondary)" }}>/ ay · 5 kullanıcı</p>
-              <ul className="mb-8 space-y-3 text-sm" style={{ color: "var(--text-primary)" }}>
-                {[
-                  "Pro'nun her şeyi",
-                  "Ekip ilerleme paneli",
-                  "Özel içerik yükleme",
                   "Öncelikli destek",
                 ].map((f) => (
                   <li key={f} className="flex items-center gap-2">
-                    <span style={{ color: "#12B886" }}>✓</span> {f}
+                    <span className="font-bold" style={{ color: "#FFD93D" }}>✓</span> {f}
                   </li>
                 ))}
               </ul>
-              <button
-                className="w-full rounded-full py-3 text-sm font-semibold transition-all hover:opacity-80"
-                style={{ background: "var(--bg-soft)", color: "var(--text-primary)" }}
+              <a
+                href="/auth/login?mode=signup"
+                className="block w-full rounded-full py-3 text-center text-sm font-bold transition-all hover:scale-105"
+                style={{ background: "#FF6B6B", color: "white", textDecoration: "none" }}
               >
-                İletişime Geç
-              </button>
+                Pro'ya Geç →
+              </a>
             </div>
           </div>
+
+          {/* Garanti notu */}
+          <p className="mt-10 text-center text-sm" style={{ color: "var(--text-secondary)" }}>
+            30 gün içinde memnun kalmazsan paranı iade ediyoruz. Hiçbir soru sormadan.
+          </p>
         </div>
       </section>
 
